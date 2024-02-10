@@ -25,7 +25,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="(task, index) in tasks" :key="index">
+            <tr v-for="task in tasks" :key="task.id">
               <th scope="row">
                 <span :class="{ finished: task.status == 'doing' }">
                   {{ task.name }}
@@ -33,7 +33,7 @@
               </th>
               <td>
                 <span
-                  @click="editStatus(index)"
+                  @click="editStatus(task.id)"
                   class="poinyrt"
                   :class="{
                     'text-danger': task.status == 'todo',
@@ -45,14 +45,14 @@
                 </span>
               </td>
               <td>
-                <div @click="editTask(index)">
+                <div @click="editTask(task.id)">
                   <samp class="poinyrt">
                     <i class="fa-regular fa-pen-to-square"></i
                   ></samp>
                 </div>
               </td>
               <td>
-                <div @click="deleteTask(index)">
+                <div @click="deleteTask(task.id)">
                   <samp class="poinyrt"
                     ><i class="fa-regular fa-trash-can"></i
                   ></samp>
@@ -67,6 +67,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: "todo-app",
   props: {
@@ -76,24 +78,23 @@ export default {
     return {
       task: "",
       isEditTask: null,
-      tasks: [
-        {
-          name: "Stady js",
-          status: "todo",
-        },
-        {
-          name: "Stady python",
-          status: "doing",
-        },
-        {
-          name: "Stady c++",
-          status: "inprogress",
-        },
-      ],
+      tasks: [],
     };
   },
 
+  mounted() {
+    this.getTasks();
+  },
+
   methods: {
+    getTasks(){
+
+        axios({
+            method:"get",
+            url:"http://127.0.0.1:8000/tasks/api",
+          }).then(response => this.tasks = response.data)
+        },
+
     submitTask() {
       if (this.task == "") return;
       if (this.isEditTask == null) {
